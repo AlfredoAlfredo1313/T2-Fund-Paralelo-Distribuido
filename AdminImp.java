@@ -8,6 +8,7 @@ public class AdminImp extends UnicastRemoteObject implements ProcessoAdministrac
     final boolean DEBUG;
     static Scanner in = new Scanner(System.in);
     static Map<String, Conta> contas = new HashMap<>();
+    int codigo = -1;
 
     public AdminImp(boolean DEBUG) throws RemoteException {
         super();
@@ -15,25 +16,26 @@ public class AdminImp extends UnicastRemoteObject implements ProcessoAdministrac
         System.out.printf("\nMODO DEBUG = %b\n", DEBUG);
     }
 
-    void debug() throws RemoteException
+    void stall() throws RemoteException
     {
+        if(!DEBUG) return;
         System.out.printf("\n----------MODO DEBUG----------\nINSIRA 0 NO TERMINAL PARA LANCAR UMA EXCEPTION\n");
         if(in.nextInt() == 0) throw new RemoteException();
     }
 
     @Override
     public boolean manipulaConta(String numero, double valor, int codigoTransferencia) throws RemoteException  {
-        Conta c = contas.get(numero);
-        if(c.getNumCompra() == codigoTransferencia) return false;
-        System.out.printf("\nIniciando operacao...\n");
+        if(codigoTransferencia == codigo) return false;
+        System.out.printf("\nIniciando operacao\n");
         try {
-            if(DEBUG)debug();
+            stall();
+            Conta c = contas.get(numero);
         //if(valor == 0) throw new RemoteException();
             c.manipula(valor);
-            c.setNumCompra(codigoTransferencia);
-            System.out.printf("\nEncerrando operacao...\n");
-            if(DEBUG)debug();
-            System.out.println("Operacao encerrada com sucesso");
+            codigo = codigoTransferencia;
+            System.out.printf("\nEncerrando operacao\n");
+            stall();
+            System.out.println("ENCERRANDO OPERACAO");
             return true;
         } catch (RemoteException e) {
             throw new RemoteException();
@@ -42,15 +44,15 @@ public class AdminImp extends UnicastRemoteObject implements ProcessoAdministrac
 
     @Override
     public boolean fechaConta(String numero, int codigoTransferencia) throws RemoteException {
-        if(!contas.keySet().contains(numero)) return false;
+        if(codigoTransferencia == codigo) return false;
         System.out.printf("\nIniciando operacao\n");
         try {
-            debug();
+            stall();
             contas.remove(numero);
-            //c.setNumCompra(codigoTransferencia);
+            codigo = codigoTransferencia;
             System.out.printf("\nEncerrando operacao\n");
-            debug();
-            System.out.println("Operacao encerrada com sucesso");
+            stall();
+            System.out.println("ENCERRANDO OPERACAO");
             return true;
         } catch (RemoteException e) {
             throw new RemoteException();
@@ -69,16 +71,17 @@ public class AdminImp extends UnicastRemoteObject implements ProcessoAdministrac
 
     @Override
     public boolean abreConta(String numero, String codigo, int codigoTransferencia) throws RemoteException {
+        if(codigoTransferencia == this.codigo) return false;
         if(contas.containsKey(numero)) return false;
         System.out.printf("\nIniciando operacao\n");
         try {
-            debug();
+            stall();
             Conta C = new Conta(codigo);
             contas.put(numero, C);
-            //this.c.setNumCompra(codigoTransferencia);
+            this.codigo = codigoTransferencia;
             System.out.printf("\nEncerrando operacao\n");
-            debug();
-            System.out.println("Operacao encerrada com sucesso");
+            stall();
+            System.out.println("ENCERRANDO OPERACAO");
             return true;
         } catch (RemoteException e) {
             throw new RemoteException();

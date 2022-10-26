@@ -1,7 +1,6 @@
 public class Conta {
     private String codigo;
     private double saldo = 0;
-    private int numCompra = -1;
 
     public Conta(String codigo)
     {
@@ -21,15 +20,5 @@ public class Conta {
     public String getCodigo()
     {
         return codigo;
-    }
-
-    public void setNumCompra(int numCompra)
-    {
-        this.numCompra = numCompra;
-    }
-
-    public int getNumCompra()
-    {
-        return numCompra;
     }
 }
